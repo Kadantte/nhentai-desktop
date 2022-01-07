@@ -1,47 +1,80 @@
-import { app, BrowserWindow } from 'electron';
-import * as path from 'path';
+const galleryUrl = 'https://i.nhentai.net/galleries';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
-  app.quit();
+const fetchFormEl = document.getElementById('fetch-form');
+const itemUrlEl = document.getElementById('item-url');
+const itemTitleEl = document.getElementById('item-title');
+const itemContentEl = document.getElementById('item-content');
+
+fetchFormEl.addEventListener('submit', onFetch);
+
+async function onFetch(e: SubmitEvent): Promise<void> {
+  e.preventDefault();
+  // Get the url
+  const url = (<HTMLInputElement>itemUrlEl).value;
+  // Make sure the url is valid
+  if (url === '') {
+    // TODO: Notify the user
+    throw new Error('URL is invalid.');
+  }
+  try {
+    // Fetch item's document
+    const itemDoc = await getItemDoc(url);
+    // Clear previous item content
+    itemContentEl.innerHTML = '';
+    // Get item's meta data
+    const itemData = await getItemData(itemDoc);
+    // Get image extension
+    const imgExt = getImageExtension(itemData);
+    if (imgExt === null) throw new Error('Cannot find image extension.');
+    // Get item's title
+    const itemTitle = itemData.title.english;
+    itemTitleEl.innerHTML = itemTitle;
+    // Insert all images
+    for (var i = 1; i <= itemData.num_pages; i++) {
+      const imgEl = document.createElement('img');
+      imgEl.src = buildImgUrl(itemData.media_id, i, imgExt);
+      imgEl.alt = `Image ${i}`;
+      itemContentEl.appendChild(imgEl);
+    }
+  } catch (err) {
+    // TODO: Notify the user
+    console.error(err);
+  }
 }
 
-const createWindow = (): void => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-  });
+async function getItemDoc(url: string): Promise<Document> {
+  // Fetch the item
+  const response = await fetch(url);
+  // Get the content
+  const content = await response.text();
+  // Get the item's document
+  const parser = new DOMParser();
+  return parser.parseFromString(content, 'text/html');
+}
 
-  // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
+async function getItemData(itemDoc: Document) {
+  const scripContent = itemDoc.getElementsByTagName('script')[2].innerText;
+  const leftQuote = scripContent.indexOf('"');
+  const rightQuote = scripContent.indexOf('"', leftQuote + 1);
+  const jsonString = scripContent.slice(leftQuote, rightQuote + 1);
+  return JSON.parse(JSON.parse(jsonString));
+}
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-};
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+function getImageExtension(itemData: any): string | null {
+  const type = itemData.images.cover.t;
+  if (type === 'j') {
+    return '.jpg';
+  } else if (type === 'p') {
+    return '.png';
+  } else {
+    return null;
   }
-});
+}
 
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+function buildImgUrl(
+  itemMediaId: string,
+  imgNumber: number,
+  imgExt: string
+): string {
+  return `${galleryUrl}/${itemMediaId}/${imgNumber}${imgExt}`;
+}
