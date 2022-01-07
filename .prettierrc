@@ -1,0 +1,6 @@
+{
+  "endOfLine": "crlf",
+  "singleQuote": true,
+  "quoteProps": "consistent",
+  "bracketSameLine": true
+}
