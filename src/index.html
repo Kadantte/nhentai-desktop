@@ -10,20 +10,15 @@
 </head>
 
 <body>
-  <div style="padding: 10px;">
-    <form id="fetch-form">
-      <input id="item-url" type="url" placeholder="Enter URL" value="https://nhentai.net/g/362858/">
-      <button type="submit" style="margin-right: 10px;">Fetch</button>
-      <!-- TODO: Implement download button -->
-      <button disabled>Download</button>
-    </form>
+  <div id="menu">
+    <input id="item-url" type="url" placeholder="Enter URL" value="https://nhentai.net/g/362858/">
+    <button id="fetch-btn" style="margin-right: 10px;">Fetch</button>
+    <button id="download-btn">Download</button>
   </div>
   <div style="padding: 10px;">
     <div id="item-title"></div>
     <div id="item-content"></div>
   </div>
 </body>
-
-<script src="../dist/index.js"></script>
 
 </html>

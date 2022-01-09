@@ -17,7 +17,8 @@ button {
   margin: 0;
 }
 
-#fetch-form {
+#menu {
+  padding: 10px;
   display: flex;
   justify-content: center;
 }
