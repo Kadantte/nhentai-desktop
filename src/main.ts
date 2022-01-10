@@ -13,6 +13,8 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 720,
     width: 1280,
+    title: 'nHentai Desktop',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -21,26 +23,29 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Set the icon
+  mainWindow.setIcon(path.join(__dirname, '../src/assets/icon.ico'));
 
-  // Handle download
+  // Open the DevTools.
+  // mainWindow.webContents.openDevTools();
+
+  // Handle downloads.
   ipcMain.handle('download', async (event, args) => {
     const { itemData, galleryUrl, imgExt } = args.payload;
 
-    // Get directory to save to
+    // Get the directory.
     const selectedDirs = dialog.showOpenDialogSync({
       properties: ['openDirectory'],
     });
 
     if (!selectedDirs) {
-      return Promise.reject('Directory paths is undefined.');
+      return Promise.reject('Directory paths are undefined.');
     }
 
     const baseUrl = `${galleryUrl}/${itemData.media_id}`;
     const directory = `${selectedDirs[0]}\\${itemData.title.english}`;
 
-    // Initiate progress bar
+    // Initiate progress bar.
     mainWindow.setProgressBar(0);
 
     // Download all images.
@@ -59,8 +64,13 @@ function download(
   window: BrowserWindow
 ) {
   if (fileNum > fileCnt) {
-    // Download completed
-    // TODO: Notify
+    // Download completed.
+    dialog.showMessageBox(window, {
+      title: 'Notification',
+      message: `Download completed.`,
+      type: 'info',
+    });
+    // Reset progress bar.
     window.setProgressBar(-1);
     return;
   }
@@ -68,12 +78,12 @@ function download(
   const fileUrl = `${baseUrl}/${fileNum}${fileExt}`;
   const savePath = `${directory}\\${fileNum}${fileExt}`;
 
-  // Set file path before downloading the file.
-  // When done, start downloading the next file.
   window.webContents.session.once(
     'will-download',
     (event, item, webContents) => {
+      // Set file path before downloading the file.
       item.setSavePath(savePath);
+      // Once done, start downloading the next file.
       item.once('done', (event, state) => {
         // TODO: Check state and handle errors
         window.setProgressBar(fileNum / fileCnt);
