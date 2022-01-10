@@ -7,6 +7,10 @@ An unofficial desktop application for reading and downloading doujinshi from nhe
 - Fetch the images via a URL
 - Download the images via a URL
 
+## Preview
+
+![Preview Image](https://github.com/LittleBlue512/nhentai-desktop/blob/main/repo/preview_image.png)
+
 ## Tech
 
 - Electron.js
