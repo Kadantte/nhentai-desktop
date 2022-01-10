@@ -20,10 +20,10 @@ const createWindow = (): void => {
     },
   });
 
-  // and load the index.html of the app.
+  // Load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
 
-  // Set the icon
+  // Set the icon.
   mainWindow.setIcon(path.join(__dirname, '../src/assets/icon.ico'));
 
   // Open the DevTools.
@@ -34,16 +34,11 @@ const createWindow = (): void => {
     const { itemData, galleryUrl, imgExt } = args.payload;
 
     // Get the directory.
-    const selectedDirs = dialog.showOpenDialogSync({
-      properties: ['openDirectory'],
-    });
-
-    if (!selectedDirs) {
-      return Promise.reject('Directory paths are undefined.');
-    }
+    const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory'] });
+    if (!dirs) return Promise.reject('Directory paths are undefined.');
 
     const baseUrl = `${galleryUrl}/${itemData.media_id}`;
-    const directory = `${selectedDirs[0]}\\${itemData.title.english}`;
+    const directory = `${dirs[0]}\\${itemData.title.english}`;
 
     // Initiate progress bar.
     mainWindow.setProgressBar(0);
@@ -85,7 +80,7 @@ function download(
       item.setSavePath(savePath);
       // Once done, start downloading the next file.
       item.once('done', (event, state) => {
-        // TODO: Check state and handle errors
+        // TODO: Check the state and handle errors.
         window.setProgressBar(fileNum / fileCnt);
         download(fileNum + 1, directory, fileExt, fileCnt, baseUrl, window);
       });

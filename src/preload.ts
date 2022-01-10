@@ -13,54 +13,36 @@ window.addEventListener('DOMContentLoaded', () => {
   downloadBtn.addEventListener('click', onDownload);
 
   async function onDownload() {
-    // Get the url
     const url = (<HTMLInputElement>itemUrlEl).value;
-    // Make sure the url is valid
-    if (url === '') {
-      // TODO: Notify the user
-      throw new Error('URL is invalid.');
-    }
+    if (url === '') throw new Error('URL is invalid.');
     try {
-      // Fetch item's document
       const itemDoc = await getItemDoc(url);
-      // Get item's meta data
       const itemData = await getItemData(itemDoc);
-      // Get image extension
       const imgExt = getImageExtension(itemData);
-      if (imgExt === null) throw new Error('Cannot find image extension.');
-      // Send message to the main process
+      if (imgExt === null) throw new Error('Cannot find the image extension.');
       await ipcRenderer.invoke('download', {
         payload: { itemData, galleryUrl, imgExt },
       });
     } catch (err) {
-      // TODO: Notify the user
       console.error(err);
     }
   }
 
   async function onFetch(e: SubmitEvent): Promise<void> {
     e.preventDefault();
-    // Get the url
     const url = (<HTMLInputElement>itemUrlEl).value;
-    // Make sure the url is valid
     if (url === '') {
       // TODO: Notify the user
       throw new Error('URL is invalid.');
     }
     try {
-      // Fetch item's document
       const itemDoc = await getItemDoc(url);
-      // Clear previous item content
       itemContentEl.innerHTML = '';
-      // Get item's meta data
       const itemData = await getItemData(itemDoc);
-      // Get image extension
       const imgExt = getImageExtension(itemData);
       if (imgExt === null) throw new Error('Cannot find image extension.');
-      // Get item's title
       const itemTitle = itemData.title.english;
       itemTitleEl.innerHTML = itemTitle;
-      // Insert all images
       for (var i = 1; i <= itemData.num_pages; i++) {
         const imgEl = document.createElement('img');
         imgEl.src = `${galleryUrl}/${itemData.media_id}/${i}${imgExt}`;
@@ -75,11 +57,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function getItemDoc(url: string): Promise<Document> {
-  // Fetch the item
   const response = await fetch(url);
-  // Get the content
   const content = await response.text();
-  // Get the item's document
   const parser = new DOMParser();
   return parser.parseFromString(content, 'text/html');
 }
