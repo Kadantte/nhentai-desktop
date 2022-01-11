@@ -4,8 +4,8 @@ An unofficial desktop application for reading and downloading doujinshi from nhe
 
 ## Features
 
-- Fetch the images via a URL
-- Download the images via a URL
+- Fetch images via a URL
+- Download images via a URL
 
 ## Preview
 
