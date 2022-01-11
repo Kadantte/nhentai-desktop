@@ -1,6 +1,6 @@
 # nHentai-Desktop
 
-An unofficial desktop application for reading and downloading doujinshi from nhentai.net. I built this for personal entertainment and to learn Electron.js.
+An unofficial desktop application for reading and downloading doujinshi from nhentai.net.
 
 ## Features
 
