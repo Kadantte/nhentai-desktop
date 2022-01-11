@@ -2,6 +2,11 @@ import * as path from 'path';
 import { dialog } from 'electron/main';
 import { app, BrowserWindow, ipcMain } from 'electron';
 
+interface File {
+  url: string;
+  filePath: string;
+}
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
@@ -28,37 +33,41 @@ const createWindow = (): void => {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
-
-  // Handle downloads.
-  ipcMain.handle('download', async (event, args) => {
-    const { itemData, galleryUrl, imgExt } = args.payload;
-
-    // Get the directory.
-    const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory'] });
-    if (!dirs) return Promise.reject('Directory paths are undefined.');
-
-    const baseUrl = `${galleryUrl}/${itemData.media_id}`;
-    const directory = `${dirs[0]}\\${itemData.title.english}`;
-
-    // Initiate progress bar.
-    mainWindow.setProgressBar(0);
-
-    // Download all images.
-    download(1, directory, imgExt, itemData.num_pages, baseUrl, mainWindow);
-
-    return Promise.resolve();
-  });
 };
 
-function download(
-  fileNum: number,
-  directory: string,
-  fileExt: string,
-  fileCnt: number,
-  baseUrl: string,
-  window: BrowserWindow
-) {
-  if (fileNum > fileCnt) {
+// Handle downloads.
+ipcMain.handle('download', async (event, args) => {
+  const { itemData, galleryUrl, imgExt } = args.payload;
+
+  // Get the directory.
+  const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory'] });
+  if (!dirs) return Promise.reject('Directory paths are undefined.');
+
+  const baseUrl = `${galleryUrl}/${itemData.media_id}`;
+  const directory = `${dirs[0]}\\${itemData.title.english}`;
+
+  // Initiate progress bar.
+  BrowserWindow.getFocusedWindow().setProgressBar(0);
+
+  // Build an array of files.
+  const files: Array<File> = [];
+  for (var i = 1; i <= itemData.num_pages; i++) {
+    files.push({
+      url: `${baseUrl}/${i}${imgExt}`,
+      filePath: `${directory}\\${i}${imgExt}`,
+    });
+  }
+
+  // Download all images.
+  download(files, 1);
+
+  return Promise.resolve();
+});
+
+function download(files: Array<File>, counter: number) {
+  const window = BrowserWindow.getFocusedWindow();
+
+  if (counter > files.length) {
     // Download completed.
     dialog.showMessageBox(window, {
       title: 'Notification',
@@ -70,24 +79,18 @@ function download(
     return;
   }
 
-  const fileUrl = `${baseUrl}/${fileNum}${fileExt}`;
-  const savePath = `${directory}\\${fileNum}${fileExt}`;
+  window.webContents.session.once('will-download', (event, item) => {
+    // Set file path before downloading the file.
+    item.setSavePath(files[counter - 1].filePath);
+    // Once done, start downloading the next file.
+    item.once('done', (event, state) => {
+      // TODO: Check the state and handle errors.
+      window.setProgressBar(counter / files.length);
+      download(files, counter + 1);
+    });
+  });
 
-  window.webContents.session.once(
-    'will-download',
-    (event, item, webContents) => {
-      // Set file path before downloading the file.
-      item.setSavePath(savePath);
-      // Once done, start downloading the next file.
-      item.once('done', (event, state) => {
-        // TODO: Check the state and handle errors.
-        window.setProgressBar(fileNum / fileCnt);
-        download(fileNum + 1, directory, fileExt, fileCnt, baseUrl, window);
-      });
-    }
-  );
-
-  window.webContents.downloadURL(fileUrl);
+  window.webContents.downloadURL(files[counter - 1].url);
 }
 
 // This method will be called when Electron has finished
