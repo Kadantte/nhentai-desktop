@@ -23,13 +23,13 @@ button {
   justify-content: center;
 }
 
-#item-url {
+#book-url {
   width: 100%;
   padding: 10px;
   margin-right: 10px;
 }
 
-#item-title {
+#book-title {
   font-size: larger;
   font-weight: bold;
   text-align: center;

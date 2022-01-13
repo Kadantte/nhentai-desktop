@@ -2,6 +2,8 @@ import * as path from 'path';
 import { dialog } from 'electron/main';
 import { app, BrowserWindow, ipcMain } from 'electron';
 
+const { BASE_IMG_URL } = require('../src/config.json');
+
 interface File {
   url: string;
   filePath: string;
@@ -37,60 +39,62 @@ const createWindow = (): void => {
 
 // Handle downloads.
 ipcMain.handle('download', async (event, args) => {
-  const { itemData, galleryUrl, imgExt } = args.payload;
+  const { book, imgExt } = args.payload;
 
   // Get the directory.
   const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory'] });
   if (!dirs) return Promise.reject('Directory paths are undefined.');
 
-  const baseUrl = `${galleryUrl}/${itemData.media_id}`;
-  const directory = `${dirs[0]}\\${itemData.title.english}`;
+  // Get the browser window.
+  const browserWindow = BrowserWindow.getFocusedWindow();
 
   // Initiate progress bar.
-  BrowserWindow.getFocusedWindow().setProgressBar(0);
+  browserWindow.setProgressBar(0);
 
   // Build an array of files.
   const files: Array<File> = [];
-  for (var i = 1; i <= itemData.num_pages; i++) {
+  for (var i = 1; i <= book.num_pages; i++) {
     files.push({
-      url: `${baseUrl}/${i}${imgExt}`,
-      filePath: `${directory}\\${i}${imgExt}`,
+      url: `${BASE_IMG_URL}/${book.media_id}/${i}${imgExt}`,
+      filePath: `${dirs[0]}\\${book.title.english}\\${i}${imgExt}`,
     });
   }
 
   // Download all images.
-  download(files, 1);
+  download(browserWindow, files);
 
   return Promise.resolve();
 });
 
-function download(files: Array<File>, counter: number) {
-  const window = BrowserWindow.getFocusedWindow();
-
+function download(
+  browserWindow: BrowserWindow,
+  files: Array<File>,
+  counter: number = 1
+) {
   if (counter > files.length) {
     // Download completed.
-    dialog.showMessageBox(window, {
+    dialog.showMessageBox(browserWindow, {
       title: 'Notification',
       message: `Download completed.`,
       type: 'info',
     });
     // Reset progress bar.
-    window.setProgressBar(-1);
+    browserWindow.setProgressBar(-1);
     return;
   }
 
-  window.webContents.session.once('will-download', (event, item) => {
+  browserWindow.webContents.session.once('will-download', (event, item) => {
     // Set file path before downloading the file.
     item.setSavePath(files[counter - 1].filePath);
     // Once done, start downloading the next file.
     item.once('done', (event, state) => {
       // TODO: Check the state and handle errors.
-      window.setProgressBar(counter / files.length);
-      download(files, counter + 1);
+      browserWindow.setProgressBar(counter / files.length);
+      download(browserWindow, files, counter + 1);
     });
   });
 
-  window.webContents.downloadURL(files[counter - 1].url);
+  browserWindow.webContents.downloadURL(files[counter - 1].url);
 }
 
 // This method will be called when Electron has finished
