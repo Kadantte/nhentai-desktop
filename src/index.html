@@ -3,19 +3,20 @@
 
 <head>
   <meta charset="utf-8">
-  <!-- Water.css -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
   <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
   <div id="menu">
     <input id="book-url" type="url" placeholder="Enter URL" value="https://nhentai.net/g/362858/">
-    <button id="fetch-btn" style="margin-right: 10px;">Fetch</button>
-    <button id="download-btn">Download</button>
+    <span id="fetch-btn" class="material-icons icon-button">search</span>
+    <span id="download-btn" class="material-icons icon-button">download</span>
   </div>
-  <div style="padding: 10px;">
+  <div id="main">
     <div id="book-title"></div>
+    <div id="book-page-cnt"></div>
     <div id="book-content"></div>
   </div>
 </body>

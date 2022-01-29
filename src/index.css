@@ -1,37 +1,108 @@
+:root {
+  --card: #3e3e3e;
+  --font: #d8d8d8;
+  --background: #282828;
+  --border-radius: 6px;
+}
+
 * {
+  margin: 0;
+  padding: 0;
+  color: var(--font);
   box-sizing: border-box;
 }
 
 body {
   padding: 0;
+  background-color: var(--background);
+  font-family: 'Roboto Mono', sans-serif;
 }
 
 img {
   width: 100%;
-  border-radius: 6px;
   margin-bottom: 10px;
+  border-radius: var(--border-radius);
 }
 
-input,
-button {
-  margin: 0;
+input {
+  all: unset;
+  padding: 0 10px 0 10px;
+  border-radius: var(--border-radius);
+  background-color: var(--background);
 }
 
 #menu {
+  height: 60px;
   padding: 10px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  background-color: var(--card);
 }
 
 #book-url {
-  width: 100%;
-  padding: 10px;
+  width: 500px;
+  height: 40px;
   margin-right: 10px;
+}
+
+#main {
+  text-align: center;
+  padding: 10px 10% 10px 10%;
 }
 
 #book-title {
   font-size: larger;
   font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+#book-page-cnt {
+  margin-bottom: 20px;
+}
+
+.material-icons {
+  border: 0;
+  font-size: 36px;
+}
+
+.icon-button {
+  padding: 2px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--border-radius);
+
+  transition: all;
+  transition-duration: 200ms;
+  background-color: var(--card);
+}
+
+.icon-button:hover {
+  background-color: var(--background);
+}
+
+.icon-button:active {
+  background-color: #181818;
+}
+
+/* Scrollbar */
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #4d4d4d;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
 }

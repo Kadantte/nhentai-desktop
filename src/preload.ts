@@ -8,6 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const bookTitleEl = document.getElementById('book-title');
   const downloadBtn = document.getElementById('download-btn');
   const bookContentEl = document.getElementById('book-content');
+  const bookPageCntEl = document.getElementById('book-page-cnt');
 
   fetchBtnEl.addEventListener('click', onFetch);
   downloadBtn.addEventListener('click', onDownload);
@@ -54,8 +55,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const imgExt = getImageExtension(book);
     if (imgExt === null) throw new Error('Cannot find image extension.');
 
-    // Insert the title.
+    // Replace the title.
     bookTitleEl.innerHTML = book.title.english;
+
+    // Replace the page count.
+    bookPageCntEl.innerHTML = book.num_pages + ' Pages';
 
     // Clear the content.
     bookContentEl.innerHTML = '';
