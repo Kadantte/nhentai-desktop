@@ -4,11 +4,6 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 
 const { BASE_IMG_URL } = require('../src/config.json');
 
-interface File {
-  url: string;
-  filePath: string;
-}
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
@@ -52,7 +47,7 @@ ipcMain.handle('download', async (event, args) => {
   browserWindow.setProgressBar(0);
 
   // Build an array of files.
-  const files: Array<File> = [];
+  const files: Array<DownloadFile> = [];
   for (var i = 1; i <= book.num_pages; i++) {
     files.push({
       url: `${BASE_IMG_URL}/${book.media_id}/${i}${imgExt}`,
@@ -68,7 +63,7 @@ ipcMain.handle('download', async (event, args) => {
 
 function download(
   browserWindow: BrowserWindow,
-  files: Array<File>,
+  files: Array<DownloadFile>,
   counter: number = 1
 ) {
   if (counter > files.length) {
