@@ -25,39 +25,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Fetch the book.
     const response = await fetch(`${BASE_API_URL}/${bookId}`);
-    const book = await response.json();
+    const book: Book = await response.json();
 
-    // Get the image extension.
-    const imgExt = getImageExtension(book);
-    if (imgExt === null) throw new Error('Cannot find image extension.');
-
-    // Insert book info.
+    // Insert the book info.
     bookTitleEl.innerHTML = book.title.english;
     bookPageCntEl.innerHTML = book.num_pages + ' Pages';
+    btnSlotEl.innerHTML = '';
     btnSlotEl.appendChild(buildDownloadBtn(url));
     bookContentEl.innerHTML = '';
 
-    // Insert the images.
-    for (var i = 1; i <= book.num_pages; i++) {
+    // Insert each page to the dom.
+    book.images.pages.forEach((page, index) => {
       const imgEl = document.createElement('img');
-      imgEl.src = `${BASE_IMG_URL}/${book.media_id}/${i}${imgExt}`;
-      imgEl.alt = `Image ${i}`;
+      const imgExt = page.t === 'j' ? '.jpg' : '.png';
+      imgEl.src = `${BASE_IMG_URL}/${book.media_id}/${index + 1}${imgExt}`;
+      imgEl.alt = `Image ${index + 1}`;
       bookContentEl.appendChild(imgEl);
-    }
+    });
   }
 });
-
-function getImageExtension(book: any): string | null {
-  const type = book.images.cover.t;
-  switch (type) {
-    case 'j':
-      return '.jpg';
-    case 'p':
-      return '.png';
-    default:
-      return null;
-  }
-}
 
 async function onDownload(url: string) {
   // Validate the url.
@@ -69,15 +55,11 @@ async function onDownload(url: string) {
 
   // Fetch the book.
   const response = await fetch(`${BASE_API_URL}/${bookId}`);
-  const book = await response.json();
-
-  // Get the image extension.
-  const imgExt = getImageExtension(book);
-  if (imgExt === null) throw new Error('Cannot find image extension.');
+  const book: Book = await response.json();
 
   // Invoke the download function in the main process.
   await ipcRenderer.invoke('download', {
-    payload: { book, imgExt },
+    payload: { book },
   });
 }
 

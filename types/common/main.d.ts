@@ -3,13 +3,13 @@ interface DownloadFile {
   filePath: string;
 }
 
-interface BookImage {
+interface Page {
   t: string;
   w: number;
   h: number;
 }
 
-interface BookTag {
+interface Tag {
   id: number;
   type: string;
   name: string;
@@ -26,13 +26,13 @@ interface Book {
     pretty: string;
   };
   images: {
-    pages: BookImage[];
-    cover: BookImage;
-    thumbnail: BookImage;
+    pages: Page[];
+    cover: Page;
+    thumbnail: Page;
   };
   scanlator: string;
   upload_date: number;
-  tags: BookTag[];
+  tags: Tag[];
   num_pages: number;
   num_favorites: number;
 }
