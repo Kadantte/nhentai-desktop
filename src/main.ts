@@ -66,7 +66,14 @@ ipcMain.handle('download', async (event, args) => {
   if (!dirs) return Promise.reject('Directory paths are undefined.');
 
   // Get the browser window.
-  const browserWindow = BrowserWindow.getFocusedWindow();
+  // For Linux, sometime getFocusedWindow() will always returns null.
+  // In that case use the first window.
+  const targetWindow = () => {
+    const _ = BrowserWindow.getFocusedWindow();
+    return _ === null ? BrowserWindow.getAllWindows()[0] : _;
+  }
+
+  const browserWindow = targetWindow();
 
   // Initiate progress bar.
   browserWindow.setProgressBar(0);
@@ -83,9 +90,15 @@ ipcMain.handle('download', async (event, args) => {
 function buildFileArray(book: Book, dir: string) {
   return book.images.pages.map((page, index) => {
     const imgExt = page.t === 'j' ? '.jpg' : '.png';
-    return {
+
+    // Use *nix style file path for non Windows OSes. 
+    const filePathOS = process.platform === 'win32' ? 
+      `${dir}\\${book.title.english}\\${index + 1}${imgExt}` :
+      `${dir}/${book.title.english}/${index + 1}${imgExt}`;
+    
+      return {
       url: `${BASE_IMG_URL}/${book.media_id}/${index + 1}${imgExt}`,
-      filePath: `${dir}\\${book.title.english}\\${index + 1}${imgExt}`,
+      filePath: filePathOS,
     };
   });
 }
