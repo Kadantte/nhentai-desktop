@@ -26,7 +26,7 @@ const createWindow = (): void => {
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
 
   // Set the icon.
-  mainWindow.setIcon(path.join(__dirname, '../src/assets/icon.ico'));
+  mainWindow.setIcon(path.join(__dirname, '../assets/icon.ico'));
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
