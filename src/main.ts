@@ -71,7 +71,7 @@ ipcMain.handle('download', async (event, args) => {
   const targetWindow = () => {
     const _ = BrowserWindow.getFocusedWindow();
     return _ === null ? BrowserWindow.getAllWindows()[0] : _;
-  }
+  };
 
   const browserWindow = targetWindow();
 
@@ -91,23 +91,20 @@ function buildFileArray(book: Book, dir: string) {
   return book.images.pages.map((page, index) => {
     const imgExt = page.t === 'j' ? '.jpg' : '.png';
 
-    // Use *nix style file path for non Windows OSes. 
-    const filePathOS = process.platform === 'win32' ? 
-      `${dir}\\${book.title.english}\\${index + 1}${imgExt}` :
-      `${dir}/${book.title.english}/${index + 1}${imgExt}`;
-    
-      return {
+    // Use *nix style file path for non Windows OSes.
+    const filePathOS =
+      process.platform === 'win32'
+        ? `${dir}\\${book.title.english}\\${index + 1}${imgExt}`
+        : `${dir}/${book.title.english}/${index + 1}${imgExt}`;
+
+    return {
       url: `${BASE_IMG_URL}/${book.media_id}/${index + 1}${imgExt}`,
       filePath: filePathOS,
     };
   });
 }
 
-function download(
-  browserWindow: BrowserWindow,
-  files: Array<DownloadFile>,
-  counter: number = 1
-) {
+function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, counter: number = 1) {
   if (counter > files.length) {
     // Download completed.
     dialog.showMessageBox(browserWindow, {
