@@ -66,14 +66,7 @@ ipcMain.handle('download', async (event, args) => {
   if (!dirs) return Promise.reject('Directory paths are undefined.');
 
   // Get the browser window.
-  // For Linux, sometime getFocusedWindow() will always returns null.
-  // In that case use the first window.
-  const targetWindow = () => {
-    const _ = BrowserWindow.getFocusedWindow();
-    return _ === null ? BrowserWindow.getAllWindows()[0] : _;
-  };
-
-  const browserWindow = targetWindow();
+  const browserWindow = BrowserWindow.getAllWindows()[0];
 
   // Initiate progress bar.
   browserWindow.setProgressBar(0);
