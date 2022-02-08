@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply text-neutral-200 bg-neutral-900;
+  }
+
+  img {
+    @apply rounded;
+  }
+
+  input {
+    @apply py-2 px-3 shadow rounded outline-none bg-neutral-700 focus-within:bg-neutral-600 transition-colors ease-linear duration-100;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-900;
+  }
+
+  #top-bar {
+    @apply py-2 shadow flex items-center justify-center bg-neutral-800;
+  }
+
+  #book-url {
+    @apply w-2/6;
+  }
+
+  #book-info {
+    @apply my-5;
+  }
+
+  #book-title {
+    @apply text-lg font-bold;
+  }
+
+  #download-btn {
+    @apply my-3;
+  }
+
+  #expand-btn {
+    @apply mb-3;
+  }
+
+  #book-img {
+    @apply my-3 w-8/12 mx-auto;
+  }
+
+  .card {
+    @apply p-4 rounded shadow bg-neutral-800;
+  }
+
+  .icon {
+    @apply w-7 h-7;
+  }
+
+  .icon-btn {
+    @apply h-10 px-2 text-lg shadow rounded bg-rose-600 hover:bg-rose-500 active:bg-rose-700 transition-colors ease-linear duration-100;
+  }
+}

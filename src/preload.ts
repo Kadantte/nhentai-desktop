@@ -2,26 +2,18 @@ import { ipcRenderer } from 'electron';
 
 const { BASE_API_URL, BASE_IMG_URL } = require('../src/config.json');
 
-// Expand button.
-const expandBtnEl = buildExpandBtnEl();
-
-// Expand more <expandCnt> images each time.
+// Load more <expandCnt> images when expand.
 const expandCnt = 10;
 
-// Image element stack.
+// Image URL stack.
 var imgUrlStack: string[] = [];
 
 window.addEventListener('DOMContentLoaded', () => {
-  const btnSlotEl = document.getElementById('btn-slot');
+  const mainEl = document.getElementById('main');
   const bookUrlEl = document.getElementById('book-url');
   const fetchBtnEl = document.getElementById('fetch-btn');
-  const bookTitleEl = document.getElementById('book-title');
-  const bookContentEl = document.getElementById('book-content');
-  const bookPageCntEl = document.getElementById('book-page-cnt');
-  const expandBtnSlotEl = document.getElementById('expand-btn-slot');
 
   fetchBtnEl.addEventListener('click', onFetch);
-  expandBtnEl.addEventListener('click', onExpand);
 
   async function onFetch(e: SubmitEvent): Promise<void> {
     e.preventDefault();
@@ -31,53 +23,35 @@ window.addEventListener('DOMContentLoaded', () => {
     if (url === '') throw new Error('URL is invalid.');
 
     // Fetch the book.
-    const response = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
-    const book: Book = await response.json();
+    const book = await fetchBook(url);
 
-    // Update the book info.
-    clearBookInfo();
-    bookTitleEl.innerHTML = book.title.english;
-    bookPageCntEl.innerHTML = book.num_pages + ' Pages';
-    btnSlotEl.appendChild(buildDownloadBtnEl(url));
+    // Clear the book.
+    mainEl.innerHTML = '';
+
+    // Insert the book info.
+    const bookInfoEl = buildBookInfoEl(book);
+    bookInfoEl.appendChild(buildDownloadBtnEl(url));
+    mainEl.appendChild(bookInfoEl);
 
     // Build a url stack from the book.
-    imgUrlStack = book.images.pages
-      .map((page, index) => {
-        const imgExt = page.t === 'j' ? '.jpg' : '.png';
-        return `${BASE_IMG_URL}/${book.media_id}/${index + 1}${imgExt}`;
-      })
-      .reverse();
+    imgUrlStack = buildImgUrlStack(book);
 
-    // Insert <expandCnt> images.
-    onExpand();
+    // Insert the book content.
+    const bookContentEl = buildBookContentEl(book);
+    mainEl.appendChild(bookContentEl);
 
     // Insert the expand button.
-    expandBtnSlotEl.appendChild(expandBtnEl);
-  }
-
-  // Pop <num> elements from the stack and insert them to the dom.
-  function onExpand() {
-    const buffer = document.createElement('div');
-    for (var i = 0; i < expandCnt && imgUrlStack.length > 0; i++) {
-      const imgEl = document.createElement('img');
-      imgEl.src = imgUrlStack.pop();
-      buffer.appendChild(imgEl);
-    }
-    bookContentEl.innerHTML += buffer.innerHTML;
-
-    // Remove the expand button if the stack is empty.
-    if (imgUrlStack.length === 0) {
-      expandBtnSlotEl.innerHTML = '';
-    }
+    const expandBtnEl = buildExpandButtonEl();
+    expandBtnEl.addEventListener('click', () => {
+      bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
+    });
+    mainEl.appendChild(expandBtnEl);
   }
 });
 
 async function onDownload(url: string) {
-  if (url === '') throw new Error('URL is invalid.');
-
   // Fetch the book.
-  const response = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
-  const book: Book = await response.json();
+  const book = fetchBook(url);
 
   // Invoke the download function in the main process.
   await ipcRenderer.invoke('download', {
@@ -85,34 +59,86 @@ async function onDownload(url: string) {
   });
 }
 
-function buildDownloadBtnEl(url: string) {
-  const downloadBtnEl = document.createElement('span');
-  downloadBtnEl.id = 'download-btn';
-  downloadBtnEl.className = 'material-icons icon-button';
-  downloadBtnEl.innerText = 'download';
-  downloadBtnEl.addEventListener('click', () => onDownload(url));
-  return downloadBtnEl;
-}
-
-function buildExpandBtnEl() {
-  const expandBtnEl = document.createElement('span');
-  expandBtnEl.id = 'expand-btn';
-  expandBtnEl.className = 'material-icons icon-button';
-  expandBtnEl.innerText = 'expand_more';
-  return expandBtnEl;
-}
-
-function clearBookInfo() {
-  // Clear the image element stack.
-  imgUrlStack = [];
-
-  // Clear the HTML elements.
-  const mainEl = document.getElementById('main');
-  for (var i = 0; i < mainEl.children.length; i++) {
-    mainEl.children.item(i).innerHTML = '';
-  }
+async function fetchBook(url: string) {
+  const response = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
+  return (await response.json()) as Book;
 }
 
 function getBookId(url: string) {
   return url.match(/[0-9]/g).join('');
+}
+
+function buildDownloadBtnEl(url: string) {
+  const downloadBtnEl = document.createElement('button');
+  downloadBtnEl.id = 'download-btn';
+  downloadBtnEl.className = 'icon-btn';
+  downloadBtnEl.appendChild(document.getElementById('download-icon').cloneNode(true));
+  downloadBtnEl.addEventListener('click', () => onDownload(url));
+  return downloadBtnEl;
+}
+
+function buildBookInfoEl(book: Book) {
+  const bookInfoEl = document.createElement('div');
+  bookInfoEl.id = 'book-info';
+
+  const bookTitleEl = document.createElement('div');
+  bookTitleEl.id = 'book-title';
+  bookTitleEl.innerText = book.title.english;
+
+  const bookPageCntEl = document.createElement('div');
+  bookPageCntEl.innerText = book.num_pages + ' Pages';
+
+  bookInfoEl.appendChild(bookTitleEl);
+  bookInfoEl.appendChild(bookPageCntEl);
+
+  return bookInfoEl;
+}
+
+function buildBookContentEl(book: Book) {
+  const bookContentEl = document.createElement('div');
+  bookContentEl.id = 'book-content';
+
+  // Insert <expandCnt> images.
+  bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
+
+  return bookContentEl;
+}
+
+function buildImgUrlStack(book: Book) {
+  return book.images.pages
+    .map((page, index) => {
+      const imgExt = page.t === 'j' ? '.jpg' : '.png';
+      return `${BASE_IMG_URL}/${book.media_id}/${index + 1}${imgExt}`;
+    })
+    .reverse();
+}
+
+function buildImgEl(url: string) {
+  const imgEl = document.createElement('img');
+  imgEl.id = 'book-img';
+  imgEl.src = url;
+  return imgEl;
+}
+
+function buildExpandContentEl() {
+  const buffer = document.createElement('div');
+
+  for (var i = 0; i < expandCnt && imgUrlStack.length > 0; i++) {
+    buffer.appendChild(buildImgEl(imgUrlStack.pop()));
+  }
+
+  if (imgUrlStack.length <= 0) {
+    // Delete the expand button.
+    document.getElementById('expand-btn').remove();
+  }
+
+  return buffer;
+}
+
+function buildExpandButtonEl() {
+  const expandBtnEl = document.createElement('button');
+  expandBtnEl.id = 'expand-btn';
+  expandBtnEl.className = 'icon-btn';
+  expandBtnEl.appendChild(document.getElementById('expand-icon').cloneNode(true));
+  return expandBtnEl;
 }

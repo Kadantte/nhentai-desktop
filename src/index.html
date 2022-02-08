@@ -3,22 +3,40 @@
 
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
-  <link rel="stylesheet" href="index.css">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; connect-src https://nhentai.net/; img-src https://i.nhentai.net/;">
+  <link href="../src/index.css" rel="stylesheet">
 </head>
 
 <body>
-  <div id="menu">
+  <div id="top-bar">
     <input id="book-url" type="url" placeholder="Enter URL" value="https://nhentai.net/g/362858/">
-    <span id="fetch-btn" class="material-icons icon-button">search</span>
+    <button id="fetch-btn" class="icon-btn ml-3">
+      <svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd"
+          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+          clip-rule="evenodd"></path>
+      </svg>
+    </button>
   </div>
-  <div id="main">
-    <div id="book-title"></div>
-    <div id="book-page-cnt"></div>
-    <div id="btn-slot"></div>
-    <div id="book-content"></div>
-    <div id="expand-btn-slot"></div>
+
+  <div id="main" class="container mx-auto text-center">
+    <!-- Book... -->
+    <!-- All elements in here will be deleted every fetch -->
+  </div>
+
+  <!-- Elements for grab -->
+  <div hidden>
+    <svg id="download-icon" class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd"
+        d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+        clip-rule="evenodd"></path>
+    </svg>
+    <svg id="expand-icon" class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd"
+        d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+        clip-rule="evenodd"></path>
+    </svg>
   </div>
 </body>
 
