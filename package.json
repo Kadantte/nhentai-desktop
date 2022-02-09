@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts .",
-    "tailwindcss": "tailwindcss -i ./src/input.css -o ./src/index.css --watch"
+    "tailwindcss": "tailwindcss -i ./src/input.css -o ./dist/output.css"
   },
   "keywords": [],
   "author": {

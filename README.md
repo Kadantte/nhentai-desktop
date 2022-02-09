@@ -23,6 +23,18 @@ Install the dependencies.
 yarn install
 ```
 
+Build the CSS.
+
+```sh
+yarn tailwindcss
+```
+
+or
+
+```sh
+yarn tailwindcss --watch
+```
+
 Run the app.
 
 ```sh
