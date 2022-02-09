@@ -51,7 +51,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function onDownload(url: string) {
   // Fetch the book.
-  const book = fetchBook(url);
+  const book = await fetchBook(url);
 
   // Invoke the download function in the main process.
   await ipcRenderer.invoke('download', {
