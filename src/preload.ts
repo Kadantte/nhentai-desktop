@@ -12,8 +12,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const mainEl = document.getElementById('main');
   const bookUrlEl = document.getElementById('book-url');
   const fetchBtnEl = document.getElementById('fetch-btn');
+  const toTopBtnEl = document.getElementById('to-top-btn');
 
   fetchBtnEl.addEventListener('click', onFetch);
+  toTopBtnEl.addEventListener('click', scrollToTop);
 
   async function onFetch(e: SubmitEvent): Promise<void> {
     e.preventDefault();
@@ -27,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Clear the book.
     mainEl.innerHTML = '';
+    toTopBtnEl.hidden = true;
 
     // Insert the book info.
     const bookInfoEl = buildBookInfoEl(book);
@@ -46,6 +49,8 @@ window.addEventListener('DOMContentLoaded', () => {
       bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
     });
     mainEl.appendChild(expandBtnEl);
+
+    toTopBtnEl.hidden = false;
   }
 });
 
@@ -141,4 +146,8 @@ function buildExpandButtonEl() {
   expandBtnEl.className = 'icon-btn';
   expandBtnEl.appendChild(document.getElementById('expand-icon').cloneNode(true));
   return expandBtnEl;
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }

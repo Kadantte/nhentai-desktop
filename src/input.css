@@ -59,6 +59,10 @@
     @apply my-3 w-8/12 mx-auto;
   }
 
+  #to-top-btn {
+    @apply h-10 px-2 text-lg shadow rounded fixed right-5 bottom-5 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 transition-colors ease-linear duration-100;
+  }
+
   .card {
     @apply p-4 rounded shadow bg-neutral-800;
   }
