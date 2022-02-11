@@ -14,6 +14,7 @@ An unofficial desktop application for reading and downloading doujinshi from nhe
 ## Tech
 
 - Electron.js
+- Tailwind CSS
 
 ## Development
 
