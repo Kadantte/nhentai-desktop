@@ -44,11 +44,13 @@ window.addEventListener('DOMContentLoaded', () => {
     mainEl.appendChild(bookContentEl);
 
     // Insert the expand button.
-    const expandBtnEl = buildExpandButtonEl();
-    expandBtnEl.addEventListener('click', () => {
-      bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
-    });
-    mainEl.appendChild(expandBtnEl);
+    if (imgUrlStack.length > 0) {
+      const expandBtnEl = buildExpandButtonEl();
+      expandBtnEl.addEventListener('click', () => {
+        bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
+      });
+      mainEl.appendChild(expandBtnEl);
+    }
 
     toTopBtnEl.hidden = false;
   }
@@ -134,7 +136,10 @@ function buildExpandContentEl() {
 
   if (imgUrlStack.length <= 0) {
     // Delete the expand button.
-    document.getElementById('expand-btn').remove();
+    const expandBtnEl = document.getElementById('expand-btn');
+    if (expandBtnEl) {
+      expandBtnEl.remove();
+    }
   }
 
   return buffer;
