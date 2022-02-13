@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 
-const { BASE_API_URL, BASE_IMG_URL } = require('../src/config.json');
+import { BASE_API_URL, BASE_IMG_URL } from '../src/config.json';
 
 // Load more <expandCnt> images when expand.
 const expandCnt = 10;
