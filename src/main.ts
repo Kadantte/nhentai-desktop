@@ -2,7 +2,7 @@ import * as path from 'path';
 import { dialog } from 'electron/main';
 import { app, BrowserWindow, ipcMain } from 'electron';
 
-const { BASE_IMG_URL } = require('../src/config.json');
+import BASE_IMG_URL = require('../src/config.json');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -26,7 +26,12 @@ const createWindow = (): void => {
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
 
   // Set the icon.
-  mainWindow.setIcon(path.join(__dirname, '../assets/icon.ico'));
+  // pannxe : macOS, Linux, and other *nix for that matter, use .png as icon.
+  // Actually, win32 can use .png as icon too. So maybe considered replace icon.ico?
+  // IDK, your call.
+  mainWindow.setIcon(
+    path.join(__dirname, process.platform == 'win32' ? '../assets/icon.ico' : '../assets/icon.png')
+  );
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -97,7 +102,7 @@ function buildFileArray(book: Book, dir: string) {
   });
 }
 
-function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, counter: number = 1) {
+function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, counter = 1) {
   if (counter > files.length) {
     // Download completed.
     dialog.showMessageBox(browserWindow, {
