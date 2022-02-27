@@ -4,6 +4,9 @@ import { BASE_API_URL, BASE_IMG_URL } from '../src/config.json';
 
 // Load more <expandCnt> images when expand.
 const expandCnt = 10;
+const urlRegex = RegExp(
+  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+);
 
 // Image URL stack.
 var imgUrlStack: string[] = [];
@@ -22,7 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Grab the url.
     const url = (<HTMLInputElement>bookUrlEl).value;
-    if (url === '') throw new Error('URL is invalid.');
+    if (!urlRegex.test(url)) throw new Error('URL is invalid.');
 
     // Fetch the book.
     const book = await fetchBook(url);
