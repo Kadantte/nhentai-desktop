@@ -17,12 +17,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const fetchBtnEl = document.getElementById('fetch-btn');
   const toTopBtnEl = document.getElementById('to-top-btn');
 
-  fetchBtnEl.addEventListener('click', onFetch);
-  toTopBtnEl.addEventListener('click', scrollToTop);
+  // Scroll to top.
+  toTopBtnEl.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  async function onFetch(e: SubmitEvent): Promise<void> {
-    e.preventDefault();
-
+  // On fetch.
+  fetchBtnEl.addEventListener('click', async () => {
     // Grab the url.
     const url = (<HTMLInputElement>bookUrlEl).value;
     if (!urlRegex.test(url)) throw new Error('URL is invalid.');
@@ -36,7 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Insert the book info.
     const bookInfoEl = buildBookInfoEl(book);
-    bookInfoEl.appendChild(buildDownloadBtnEl(url));
+    bookInfoEl.appendChild(buildDownloadBtnEl(book));
     mainEl.appendChild(bookInfoEl);
 
     // Build a url stack from the book.
@@ -56,18 +55,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     toTopBtnEl.hidden = false;
-  }
-});
-
-async function onDownload(url: string) {
-  // Fetch the book.
-  const book = await fetchBook(url);
-
-  // Invoke the download function in the main process.
-  await ipcRenderer.invoke('download', {
-    payload: { book },
   });
-}
+});
 
 async function fetchBook(url: string) {
   const response = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
@@ -78,12 +67,20 @@ function getBookId(url: string) {
   return url.match(/[0-9]/g).join('');
 }
 
-function buildDownloadBtnEl(url: string) {
+function buildDownloadBtnEl(book: Book) {
   const downloadBtnEl = document.createElement('button');
   downloadBtnEl.id = 'download-btn';
   downloadBtnEl.className = 'icon-btn';
   downloadBtnEl.appendChild(document.getElementById('download-icon').cloneNode(true));
-  downloadBtnEl.addEventListener('click', () => onDownload(url));
+
+  // On download.
+  downloadBtnEl.addEventListener('click', async () => {
+    // Invoke the download function in the main process.
+    await ipcRenderer.invoke('download', {
+      payload: { book },
+    });
+  });
+
   return downloadBtnEl;
 }
 
@@ -154,8 +151,4 @@ function buildExpandButtonEl() {
   expandBtnEl.className = 'icon-btn';
   expandBtnEl.appendChild(document.getElementById('expand-icon').cloneNode(true));
   return expandBtnEl;
-}
-
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
