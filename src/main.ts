@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { dialog } from 'electron/main';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 
 import { BASE_IMG_URL } from '../src/config.json';
 
@@ -57,7 +57,7 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-// Handle downloads.
+// Handle downloads from renderer processes.
 ipcMain.handle('download', async (event, args) => {
   const book = args.payload.book as Book;
 
@@ -80,6 +80,21 @@ ipcMain.handle('download', async (event, args) => {
   return Promise.resolve();
 });
 
+// Handle notification from renderer processes.
+ipcMain.on('notify', (event, args) => notify(args.msg));
+
+function notify(msg: string) {
+  if (Notification.isSupported()) {
+    const notification = new Notification({
+      title: msg,
+    });
+
+    notification.show();
+  } else {
+    // TODO: Handle not supported.
+  }
+}
+
 function buildFileArray(book: Book, dir: string) {
   return book.images.pages.map((page, index) => {
     const imgExt = page.t === 'j' ? '.jpg' : '.png';
@@ -100,11 +115,7 @@ function buildFileArray(book: Book, dir: string) {
 function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, counter = 1) {
   if (counter > files.length) {
     // Download completed.
-    dialog.showMessageBox(browserWindow, {
-      title: 'Notification',
-      message: `Download completed.`,
-      type: 'info',
-    });
+    notify('Download completed.');
     // Reset progress bar.
     browserWindow.setProgressBar(-1);
     return;

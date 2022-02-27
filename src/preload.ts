@@ -4,9 +4,7 @@ import { BASE_API_URL, BASE_IMG_URL } from '../src/config.json';
 
 // Load more <expandCnt> images when expand.
 const expandCnt = 10;
-const urlRegex = RegExp(
-  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
-);
+const urlRegex = RegExp('https://nhentai.net/g/[0-9]+/');
 
 // Image URL stack.
 var imgUrlStack: string[] = [];
@@ -22,46 +20,58 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // On fetch.
   fetchBtnEl.addEventListener('click', async () => {
-    // Grab the url.
-    const url = (<HTMLInputElement>bookUrlEl).value;
-    if (!urlRegex.test(url)) throw new Error('URL is invalid.');
+    try {
+      // Grab the url.
+      const url = (<HTMLInputElement>bookUrlEl).value;
 
-    // Fetch the book.
-    const book = await fetchBook(url);
+      // Validate the url.
+      if (!urlRegex.test(url)) {
+        return ipcRenderer.send('notify', { msg: 'The URL is invalid.' });
+      }
 
-    // Clear the book.
-    mainEl.innerHTML = '';
-    toTopBtnEl.hidden = true;
+      // Fetch the book.
+      const res = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
 
-    // Insert the book info.
-    const bookInfoEl = buildBookInfoEl(book);
-    bookInfoEl.appendChild(buildDownloadBtnEl(book));
-    mainEl.appendChild(bookInfoEl);
+      if (res.status !== 200) {
+        return ipcRenderer.send('notify', {
+          msg: `Could not fetch the book. (Status: ${res.status})`,
+        });
+      }
 
-    // Build a url stack from the book.
-    imgUrlStack = buildImgUrlStack(book);
+      const book: Book = await res.json();
 
-    // Insert the book content.
-    const bookContentEl = buildBookContentEl(book);
-    mainEl.appendChild(bookContentEl);
+      // Clear the book.
+      mainEl.innerHTML = '';
+      toTopBtnEl.hidden = true;
 
-    // Insert the expand button.
-    if (imgUrlStack.length > 0) {
-      const expandBtnEl = buildExpandButtonEl();
-      expandBtnEl.addEventListener('click', () => {
-        bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
-      });
-      mainEl.appendChild(expandBtnEl);
+      // Insert the book info.
+      const bookInfoEl = buildBookInfoEl(book);
+      bookInfoEl.appendChild(buildDownloadBtnEl(book));
+      mainEl.appendChild(bookInfoEl);
+
+      // Build a url stack from the book.
+      imgUrlStack = buildImgUrlStack(book);
+
+      // Insert the book content.
+      const bookContentEl = buildBookContentEl(book);
+      mainEl.appendChild(bookContentEl);
+
+      // Insert the expand button.
+      if (imgUrlStack.length > 0) {
+        const expandBtnEl = buildExpandButtonEl();
+        expandBtnEl.addEventListener('click', () => {
+          bookContentEl.innerHTML += buildExpandContentEl().innerHTML;
+        });
+        mainEl.appendChild(expandBtnEl);
+      }
+
+      toTopBtnEl.hidden = false;
+    } catch (err) {
+      console.error(err);
+      ipcRenderer.send('notify', { msg: `Something went wrong.` });
     }
-
-    toTopBtnEl.hidden = false;
   });
 });
-
-async function fetchBook(url: string) {
-  const response = await fetch(`${BASE_API_URL}/${getBookId(url)}`);
-  return (await response.json()) as Book;
-}
 
 function getBookId(url: string) {
   return url.match(/[0-9]/g).join('');
