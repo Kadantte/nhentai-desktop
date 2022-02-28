@@ -16,7 +16,7 @@
   }
 
   input {
-    @apply py-2 px-3 shadow rounded outline-none bg-neutral-700 focus-within:bg-neutral-600 transition-colors ease-linear duration-100;
+    @apply p-1 shadow rounded outline-none bg-neutral-700 focus-within:bg-neutral-600 transition-colors ease-linear duration-100;
   }
 
   ::-webkit-scrollbar {
@@ -48,30 +48,26 @@
   }
 
   #download-btn {
-    @apply my-3;
+    @apply my-2;
   }
 
   #expand-btn {
-    @apply mb-3;
+    @apply mb-2;
   }
 
   #book-img {
-    @apply my-3 w-8/12 mx-auto;
+    @apply my-2 w-8/12 mx-auto;
   }
 
   #to-top-btn {
-    @apply h-10 px-2 text-lg shadow rounded fixed right-5 bottom-5 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 transition-colors ease-linear duration-100;
+    @apply h-8 w-8 p-1 text-lg shadow rounded fixed right-5 bottom-5 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 transition-colors ease-linear duration-100;
   }
 
   .card {
     @apply p-4 rounded shadow bg-neutral-800;
   }
 
-  .icon {
-    @apply w-7 h-7;
-  }
-
   .icon-btn {
-    @apply h-10 px-2 text-lg shadow rounded bg-rose-600 hover:bg-rose-500 active:bg-rose-700 transition-colors ease-linear duration-100;
+    @apply h-8 w-8 p-1 text-lg shadow rounded bg-rose-600 hover:bg-rose-500 active:bg-rose-700 transition-colors ease-linear duration-100;
   }
 }
