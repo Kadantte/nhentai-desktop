@@ -1,6 +1,6 @@
 {
   "name": "nhentai-desktop",
-  "productName": "nhentai-desktop",
+  "productName": "nHentai Desktop",
   "version": "1.0.0",
   "description": "A desktop application for reading and downloading doujinshi from nhentai.net.",
   "main": "dist/main.js",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "nhentai-desktop"
+            "name": "nHentai Desktop"
           }
         },
         {
