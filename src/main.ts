@@ -4,7 +4,8 @@ import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 
 import { BASE_IMG_URL } from '../src/config.json';
 
-var isDownloading = false;
+var isDownloading: boolean = false;
+var notification: Notification = null;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -37,7 +38,10 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  notification = new Notification();
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -92,10 +96,7 @@ ipcMain.on('notify', (event, args) => notify(args.msg));
 
 function notify(msg: string) {
   if (Notification.isSupported()) {
-    const notification = new Notification({
-      title: msg,
-    });
-
+    notification.title = msg;
     notification.show();
   } else {
     // TODO: Handle not supported.
