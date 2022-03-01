@@ -4,6 +4,8 @@ import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 
 import { BASE_IMG_URL } from '../src/config.json';
 
+var isDownloading = false;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
@@ -59,6 +61,10 @@ app.on('activate', () => {
 
 // Handle downloads from renderer processes.
 ipcMain.handle('download', async (event, args) => {
+  if (isDownloading) {
+    return notify('Can only download one book at a time.');
+  }
+
   const book = args.payload.book as Book;
 
   // Get the directory path.
@@ -75,6 +81,7 @@ ipcMain.handle('download', async (event, args) => {
   const files: Array<DownloadFile> = buildFileArray(book, dirs[0]);
 
   // Download all files.
+  isDownloading = true;
   download(browserWindow, files);
 
   return Promise.resolve();
@@ -114,6 +121,7 @@ function buildFileArray(book: Book, dir: string) {
 
 function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, counter = 1) {
   if (counter > files.length) {
+    isDownloading = false;
     // Download completed.
     notify('Download completed.');
     // Reset progress bar.
