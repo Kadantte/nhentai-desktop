@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // Validate the url.
       if (!urlRegex.test(url)) {
-        return ipcRenderer.send('notify', { msg: 'The URL is invalid.' });
+        return ipcRenderer.send('notify', { msg: 'The URL is invalid.', type: 'warning' });
       }
 
       // Fetch the book.
@@ -35,6 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (res.status !== 200) {
         return ipcRenderer.send('notify', {
           msg: `Could not fetch the book. (Status: ${res.status})`,
+          type: 'error',
         });
       }
 
@@ -68,7 +69,7 @@ window.addEventListener('DOMContentLoaded', () => {
       toTopBtnEl.hidden = false;
     } catch (err) {
       console.error(err);
-      ipcRenderer.send('notify', { msg: `Something went wrong.` });
+      ipcRenderer.send('notify', { msg: `Something went wrong.`, type: 'error' });
     }
   });
 });

@@ -1,11 +1,9 @@
 import * as path from 'path';
 import { dialog } from 'electron/main';
-import { app, BrowserWindow, ipcMain, Notification } from 'electron';
-
 import { BASE_IMG_URL } from '../src/config.json';
+import { app, BrowserWindow, ipcMain } from 'electron';
 
 var isDownloading: boolean = false;
-var notification: Notification = null;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -38,10 +36,7 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-  notification = new Notification();
-  createWindow();
-});
+app.on('ready', () => createWindow());
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -66,7 +61,7 @@ app.on('activate', () => {
 // Handle downloads from renderer processes.
 ipcMain.handle('download', async (event, args) => {
   if (isDownloading) {
-    return notify('Can only download one book at a time.');
+    return notify('Can only download one book at a time.', 'warning');
   }
 
   const book = args.payload.book as Book;
@@ -92,15 +87,10 @@ ipcMain.handle('download', async (event, args) => {
 });
 
 // Handle notification from renderer processes.
-ipcMain.on('notify', (event, args) => notify(args.msg));
+ipcMain.on('notify', (event, args) => notify(args.msg, args.type));
 
-function notify(msg: string) {
-  if (Notification.isSupported()) {
-    notification.title = msg;
-    notification.show();
-  } else {
-    // TODO: Handle not supported.
-  }
+function notify(msg: string, type: string) {
+  dialog.showMessageBoxSync({ message: msg, type });
 }
 
 function buildFileArray(book: Book, dir: string) {
@@ -124,7 +114,7 @@ function download(browserWindow: BrowserWindow, files: Array<DownloadFile>, coun
   if (counter > files.length) {
     isDownloading = false;
     // Download completed.
-    notify('Download completed.');
+    notify('Download completed.', 'info');
     // Reset progress bar.
     browserWindow.setProgressBar(-1);
     return;
